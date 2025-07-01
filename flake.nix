@@ -1,5 +1,5 @@
 {
-  description = "iCal upcoming events parser";
+  description = "cal-peek: Calendar event viewer";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -32,15 +32,15 @@
         pythonEnv = python.withPackages (ps: dependencies ++ testDependencies);
         
         # Main script
-        icalUpcoming = pkgs.writeScriptBin "ical-upcoming" ''
+        calPeek = pkgs.writeScriptBin "cal-peek" ''
           #!${pythonEnv}/bin/python
-          ${builtins.readFile ./ical_upcoming.py}
+          ${builtins.readFile ./cal_peek.py}
         '';
         
       in
       {
         # Default package
-        packages.default = icalUpcoming;
+        packages.default = calPeek;
         
         # Development shell
         devShells.default = pkgs.mkShell {
@@ -50,14 +50,14 @@
           ];
           
           shellHook = ''
-            echo "iCal upcoming events parser development environment"
+            echo "cal-peek: Calendar event viewer development environment"
             echo "Available commands:"
             echo "  pytest                    - Run tests"
-            echo "  pytest --cov=ical_upcoming - Run tests with coverage"
-            echo "  python ical_upcoming.py   - Run script directly"
+            echo "  pytest --cov=cal_peek    - Run tests with coverage"
+            echo "  python cal_peek.py        - Run script directly"
             echo ""
             echo "Usage examples:"
-            echo "  cat calendar.ics | python ical_upcoming.py"
+            echo "  cat calendar.ics | python cal_peek.py"
             echo "  cat calendar.ics | nix run ."
             echo ""
           '';
@@ -74,14 +74,14 @@
         packages.test-cov = pkgs.writeScriptBin "run-tests-coverage" ''
           #!${pkgs.bash}/bin/bash
           cd ${./.}
-          ${pythonEnv}/bin/pytest tests/ -v --cov=ical_upcoming --cov-report=html --cov-report=term
+          ${pythonEnv}/bin/pytest tests/ -v --cov=cal_peek --cov-report=html --cov-report=term
         '';
         
         # Apps
         apps = {
           default = {
             type = "app";
-            program = "${icalUpcoming}/bin/ical-upcoming";
+            program = "${calPeek}/bin/cal-peek";
           };
           
           test = {

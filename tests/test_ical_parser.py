@@ -9,7 +9,7 @@ import pytz
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
-    from ical_upcoming import ICalParser, get_upcoming_events
+    from cal_peek import ICalParser, get_upcoming_events
 except ImportError:
     # Module doesn't exist yet - that's expected in TDD
     pass
@@ -197,7 +197,7 @@ class TestFormatting:
     def test_format_event_function_exists(self):
         """Test that format_event function exists"""
         try:
-            from ical_upcoming import format_event
+            from cal_peek import format_event
             assert callable(format_event)
         except ImportError:
             pytest.skip("format_event function not implemented yet")
@@ -205,7 +205,7 @@ class TestFormatting:
     def test_simple_format_output(self, sample_event):
         """Test simple format produces expected output"""
         try:
-            from ical_upcoming import format_event
+            from cal_peek import format_event
             
             result = format_event(sample_event, format_type='simple')
             
@@ -219,7 +219,7 @@ class TestFormatting:
     def test_detailed_format_shows_more_info(self, sample_event):
         """Test detailed format shows more information than simple"""
         try:
-            from ical_upcoming import format_event
+            from cal_peek import format_event
             
             simple_result = format_event(sample_event, format_type='simple')
             detailed_result = format_event(sample_event, format_type='detailed')
@@ -237,7 +237,7 @@ class TestFormatting:
     def test_detailed_format_structure(self, sample_event):
         """Test detailed format has proper structure with all fields"""
         try:
-            from ical_upcoming import format_event
+            from cal_peek import format_event
             
             result = format_event(sample_event, format_type='detailed')
             
@@ -256,7 +256,7 @@ class TestFormatting:
     def test_detailed_format_handles_empty_description(self, event_no_description):
         """Test detailed format handles events without description"""
         try:
-            from ical_upcoming import format_event
+            from cal_peek import format_event
             
             result = format_event(event_no_description, format_type='detailed')
             
@@ -271,7 +271,7 @@ class TestFormatting:
     def test_format_event_backward_compatibility(self, sample_event):
         """Test format_event works without format_type parameter (default simple)"""
         try:
-            from ical_upcoming import format_event
+            from cal_peek import format_event
             
             # Should default to simple format if no format_type specified
             result_default = format_event(sample_event)
@@ -284,7 +284,7 @@ class TestFormatting:
     def test_format_event_json(self, sample_event):
         """Test format_event returns JSON-serializable dict for json format"""
         try:
-            from ical_upcoming import format_event
+            from cal_peek import format_event
             import json
             
             result = format_event(sample_event, format_type='json')
@@ -318,7 +318,7 @@ class TestMainFunction:
     def test_main_function_exists(self):
         """Test that main function exists and can be called"""
         try:
-            from ical_upcoming import main
+            from cal_peek import main
             assert callable(main)
         except ImportError:
             pytest.skip("main function not implemented yet")
@@ -326,7 +326,7 @@ class TestMainFunction:
     def test_main_with_args(self):
         """Test main function with command line arguments"""
         try:
-            from ical_upcoming import main
+            from cal_peek import main
             # Test will be implemented once main function exists
             pass
         except ImportError:
