@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-iCal Upcoming Events Parser
+cal-peek: Calendar Event Viewer
 
 Reads iCal data from stdin and outputs events occurring in the next 7 days,
-including proper handling of recurring events.
+including proper handling of recurring events. Supports multiple output formats
+including simple text, detailed text, and JSON.
 """
 
 import sys
@@ -236,7 +237,7 @@ def _format_event_json(event: Dict[str, Any]) -> Dict[str, Any]:
 def main():
     """Main entry point for command line usage"""
     parser = argparse.ArgumentParser(
-        description='Show upcoming events from iCal data piped via stdin'
+        description='cal-peek: View upcoming calendar events from iCal data piped via stdin'
     )
     parser.add_argument(
         '--days', '-d', 
