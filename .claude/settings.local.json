@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(nix develop:*)",
+      "Bash(python -m pytest tests/test_ical_parser.py::TestFormatting -v)",
+      "Bash(python3 -m pytest tests/test_ical_parser.py::TestFormatting -v)",
+      "Bash(python -m pytest tests/test_ical_parser.py::TestICalParser::test_format_event_json -v)",
+      "Bash(python3 -m pytest tests/test_ical_parser.py::TestICalParser::test_format_event_json -v)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

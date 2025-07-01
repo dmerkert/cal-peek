@@ -8,6 +8,7 @@ including proper handling of recurring events.
 
 import sys
 import argparse
+import json
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 import pytz
@@ -156,10 +157,12 @@ def _get_event_occurrences(event: Event, start_date: datetime, end_date: datetim
     return occurrences
 
 
-def format_event(event: Dict[str, Any], format_type: str = 'simple') -> str:
+def format_event(event: Dict[str, Any], format_type: str = 'simple'):
     """Format an event for display"""
     if format_type == 'detailed':
         return _format_event_detailed(event)
+    elif format_type == 'json':
+        return _format_event_json(event)
     else:
         return _format_event_simple(event)
 
@@ -215,6 +218,21 @@ def _format_event_detailed(event: Dict[str, Any]) -> str:
     return '\n'.join(lines)
 
 
+def _format_event_json(event: Dict[str, Any]) -> Dict[str, Any]:
+    """Format an event as JSON-serializable dictionary"""
+    # Calculate duration in minutes
+    duration = event['end'] - event['start']
+    duration_minutes = int(duration.total_seconds() / 60)
+    
+    return {
+        'summary': event['summary'],
+        'start': event['start'].isoformat(),
+        'end': event['end'].isoformat(),
+        'description': event['description'],
+        'duration_minutes': duration_minutes
+    }
+
+
 def main():
     """Main entry point for command line usage"""
     parser = argparse.ArgumentParser(
@@ -228,9 +246,9 @@ def main():
     )
     parser.add_argument(
         '--format', '-f',
-        choices=['simple', 'detailed'],
+        choices=['simple', 'detailed', 'json'],
         default='simple',
-        help='Output format (default: simple)'
+        help='Output format: simple, detailed, or json (default: simple)'
     )
     
     args = parser.parse_args()
@@ -249,18 +267,40 @@ def main():
         events = get_upcoming_events(ical_data, days=args.days)
         
         if not events:
-            print(f"No events found in the next {args.days} days")
+            if args.format == 'json':
+                print(json.dumps({
+                    "events": [],
+                    "metadata": {
+                        "days_ahead": args.days,
+                        "total_events": 0
+                    }
+                }, indent=2))
+            else:
+                print(f"No events found in the next {args.days} days")
             return
         
-        print(f"Upcoming events in the next {args.days} days:")
-        print("-" * 50)
-        
-        for i, event in enumerate(events):
-            if i > 0 and args.format == 'detailed':
-                print()  # Add blank line between detailed appointments
-                print("=" * 50)  # Add separator line
-                print()
-            print(format_event(event, format_type=args.format))
+        if args.format == 'json':
+            # Format all events as JSON
+            json_events = [format_event(event, format_type='json') for event in events]
+            output = {
+                "events": json_events,
+                "metadata": {
+                    "days_ahead": args.days,
+                    "total_events": len(events)
+                }
+            }
+            print(json.dumps(output, indent=2))
+        else:
+            # Text format output
+            print(f"Upcoming events in the next {args.days} days:")
+            print("-" * 50)
+            
+            for i, event in enumerate(events):
+                if i > 0 and args.format == 'detailed':
+                    print()  # Add blank line between detailed appointments
+                    print("=" * 50)  # Add separator line
+                    print()
+                print(format_event(event, format_type=args.format))
             
     except ValueError as e:
         print(f"Error parsing iCal data: {e}", file=sys.stderr)
