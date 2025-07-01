@@ -15,7 +15,13 @@ A Python tool that reads iCal data from stdin and displays upcoming events withi
 ### With Nix Flake
 
 ```bash
-# Run directly with a file
+# Run directly from GitHub
+nix run github:dmerkert/cal-peek -- --help
+
+# Or with calendar data
+cat calendar.ics | nix run github:dmerkert/cal-peek
+
+# Run directly with a file (local development)
 cat calendar.ics | nix run .
 
 # Run with URL
