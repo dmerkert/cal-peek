@@ -261,8 +261,7 @@ def _format_event_detailed(event: Dict[str, Any]) -> str:
     if event.get('uid'):
         lines.append(f"UID: {event['uid']}")
     
-    return '
-'.join(lines)
+    return '\n'.join(lines)
 
 
 def _format_event_json(event: Dict[str, Any]) -> Dict[str, Any]:
