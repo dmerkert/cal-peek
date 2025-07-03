@@ -85,6 +85,17 @@ def _get_event_occurrences(event: Event, start_date: datetime, end_date: datetim
     # Get basic event info
     summary = str(event.get('summary', 'No Title'))
     description = str(event.get('description', ''))
+    location = str(event.get('location', ''))
+    uid = str(event.get('uid', ''))
+    status = str(event.get('status', ''))
+    organizer = event.get('organizer', '')
+    attendees = event.get('attendee', [])
+    
+    if organizer:
+        organizer = organizer.replace('mailto:', '')
+        
+    if attendees:
+        attendees = [str(a).replace('mailto:', '') for a in attendees]
     
     # Parse start and end times
     event_start = event.get('dtstart')
@@ -138,7 +149,12 @@ def _get_event_occurrences(event: Event, start_date: datetime, end_date: datetim
                         'summary': summary,
                         'start': occurrence_start,
                         'end': occurrence_end,
-                        'description': description
+                        'description': description,
+                        'location': location,
+                        'uid': uid,
+                        'status': status,
+                        'organizer': organizer,
+                        'attendees': attendees
                     })
         except Exception:
             # If RRULE parsing fails, treat as single event
@@ -152,7 +168,12 @@ def _get_event_occurrences(event: Event, start_date: datetime, end_date: datetim
                     'summary': summary,
                     'start': start_dt,
                     'end': end_dt if isinstance(end_dt, datetime) else start_dt + timedelta(hours=1),
-                    'description': description
+                    'description': description,
+                    'location': location,
+                    'uid': uid,
+                    'status': status,
+                    'organizer': organizer,
+                    'attendees': attendees
                 })
     
     return occurrences
@@ -174,6 +195,8 @@ def _format_event_simple(event: Dict[str, Any]) -> str:
     end_time = event['end'].strftime('%H:%M')
     
     output = f"{start_time}-{end_time}: {event['summary']}"
+    if event.get('location'):
+        output += f" ({event.get('location')})"
     if event['description']:
         output += f" - {event['description']}"
     
@@ -186,6 +209,24 @@ def _format_event_detailed(event: Dict[str, Any]) -> str:
     
     # Title
     lines.append(f"Title: {event['summary']}")
+    
+    # Status
+    if event.get('status'):
+        lines.append(f"Status: {event['status']}")
+    
+    # Location
+    if event.get('location'):
+        lines.append(f"Location: {event['location']}")
+    
+    # Organizer
+    if event.get('organizer'):
+        lines.append(f"Organizer: {event.get('organizer')}")
+        
+    # Attendees
+    if event.get('attendees'):
+        lines.append("Attendees:")
+        for attendee in event.get('attendees'):
+            lines.append(f"  - {attendee}")
     
     # Date and time
     start_dt = event['start']
@@ -216,7 +257,12 @@ def _format_event_detailed(event: Dict[str, Any]) -> str:
     if event['description'] and event['description'].strip():
         lines.append(f"Description: {event['description']}")
     
-    return '\n'.join(lines)
+    # UID
+    if event.get('uid'):
+        lines.append(f"UID: {event['uid']}")
+    
+    return '
+'.join(lines)
 
 
 def _format_event_json(event: Dict[str, Any]) -> Dict[str, Any]:
@@ -226,11 +272,16 @@ def _format_event_json(event: Dict[str, Any]) -> Dict[str, Any]:
     duration_minutes = int(duration.total_seconds() / 60)
     
     return {
+        'uid': event.get('uid', ''),
+        'status': event.get('status', ''),
         'summary': event['summary'],
+        'location': event.get('location', ''),
+        'organizer': event.get('organizer', ''),
+        'attendees': event.get('attendees', []),
         'start': event['start'].isoformat(),
         'end': event['end'].isoformat(),
-        'description': event['description'],
-        'duration_minutes': duration_minutes
+        'duration_minutes': duration_minutes,
+        'description': event['description']
     }
 
 
